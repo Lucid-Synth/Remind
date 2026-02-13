@@ -13,12 +13,12 @@ export interface AuthRequest extends Request {
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-export const Middleware = (req:AuthRequest,res:Response,next:NextFunction) => {
+export const authenticate = (req:AuthRequest,res:Response,next:NextFunction) => {
     const token = req.headers.authorization;
 
     if(!token){
         return res.status(401).json({
-            message:"missing authorization table"
+            message:"missing authorization token"
         })
     }
 

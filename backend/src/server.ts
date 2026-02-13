@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from './routes/authRoutes.js'
+import contentRoutes from './routes/contentRoutes.js'
 import { configDotenv } from 'dotenv'
 configDotenv();
 
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/',authRoutes);
+app.use('/content',contentRoutes);
 
 app.get('/',(req:any,res:any) => {
     res.json({
