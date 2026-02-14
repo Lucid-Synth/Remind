@@ -23,7 +23,7 @@ export const yt = pgTable("yt",{
 export const notes = pgTable("notes",{
     id: serial('id').primaryKey(),
     title: varchar({length:255}).notNull(),
-    notes: varchar({length:255}).notNull(),
+    userNotes: varchar({length:255}).notNull(),
     createdAt: timestamp({mode: 'date'}).notNull().defaultNow(),
     createdBy: integer('created_by')
     .notNull()
