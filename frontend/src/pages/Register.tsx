@@ -1,17 +1,39 @@
-"use client";
-
-import React, { useState } from "react";
+import { useState } from "react";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Base_Url } from "../config/config";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const loginButtonHandler = () => {
+    navigate("/login");
+  };
+
+  const handleChange = (field: any, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Logic for creating a Remind account goes here
-    setTimeout(() => setIsLoading(false), 2000);
+    await axios
+      .post(Base_Url + "/register", formData)
+      .then(() => {
+        setIsLoading(false);
+      })
+      .then(() => {
+        navigate("/login");
+      });
   };
 
   return (
@@ -49,7 +71,6 @@ const Register = () => {
             className="bg-white sm:shadow-sm sm:border sm:border-gray-200 sm:rounded-3xl p-6 sm:p-10"
           >
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 ml-1 mb-1.5">
                   Full Name
@@ -62,12 +83,13 @@ const Register = () => {
                     type="text"
                     required
                     placeholder="Your name"
+                    value={formData.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
                     className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent border-2 rounded-2xl focus:bg-white focus:border-[#f8961e] focus:ring-4 focus:ring-orange-50 transition-all outline-none text-gray-900"
                   />
                 </div>
               </div>
 
-              {/* Email Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 ml-1 mb-1.5">
                   Email
@@ -79,13 +101,14 @@ const Register = () => {
                   <input
                     type="email"
                     required
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="email@example.com"
                     className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent border-2 rounded-2xl focus:bg-white focus:border-[#f8961e] focus:ring-4 focus:ring-orange-50 transition-all outline-none text-gray-900"
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 ml-1 mb-1.5">
                   Password
@@ -97,6 +120,8 @@ const Register = () => {
                   <input
                     type="password"
                     required
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
                     placeholder="Min. 8 characters"
                     className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent border-2 rounded-2xl focus:bg-white focus:border-[#f8961e] focus:ring-4 focus:ring-orange-50 transition-all outline-none text-gray-900"
                   />
@@ -124,7 +149,10 @@ const Register = () => {
               <p className="text-sm text-gray-500 font-medium">
                 Already have an account?
               </p>
-              <button className="w-full py-3 px-6 border-2 border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <button
+                className="w-full py-3 px-6 border-2 border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all"
+                onClick={loginButtonHandler}
+              >
                 Sign In to Remind
               </button>
             </div>

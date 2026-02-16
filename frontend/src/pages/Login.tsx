@@ -1,22 +1,42 @@
-"use client";
-
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Base_Url } from "../config/config";
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (field: any, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+
+    const res = await axios.post(Base_Url + "/login", formData);
+
+    const { token } = res.data;
+    localStorage.setItem("token", token);
+    setIsLoading(false);
+    navigate("/");
+  };
+
+  const navigate = useNavigate();
+
+  const registerButtonHandler = () => {
+    navigate("/register");
   };
 
   return (
     <AnimatePresence>
       <motion.div
-        // Main page fade-in
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -60,6 +80,8 @@ const LoginPage = () => {
                   <input
                     type="email"
                     required
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="email@example.com"
                     className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent border-2 rounded-2xl focus:bg-white focus:border-[#f8961e] focus:ring-4 focus:ring-orange-50 transition-all outline-none text-gray-900"
                   />
@@ -79,6 +101,8 @@ const LoginPage = () => {
                   <input
                     type="password"
                     required
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
                     placeholder="••••••••"
                     className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 border-transparent border-2 rounded-2xl focus:bg-white focus:border-[#f8961e] focus:ring-4 focus:ring-orange-50 transition-all outline-none text-gray-900"
                   />
@@ -106,7 +130,10 @@ const LoginPage = () => {
               <p className="text-sm text-gray-500 font-medium">
                 New to the platform?
               </p>
-              <button className="w-full py-3 px-6 border-2 border-gray-100 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <button
+                className="w-full py-3 px-6 border-2 border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 transition-all"
+                onClick={registerButtonHandler}
+              >
                 Create Remind Account
               </button>
             </div>
