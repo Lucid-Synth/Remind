@@ -40,7 +40,7 @@ const LoginPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="min-h-screen bg-white sm:bg-[#fafafa] flex flex-col justify-center"
+        className="min-h-screen bg-white sm:bg-[#fafafa] flex flex-col justify-center py-10"
       >
         <div className="w-full max-w-110 mx-auto">
           {/* Header Section */}
