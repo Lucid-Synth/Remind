@@ -11,6 +11,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleChange = (field: any, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -19,13 +20,24 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    const res = await axios.post(Base_Url + "/login", formData);
+    try {
+      const res = await axios.post(Base_Url + "/login", formData);
 
-    const { token } = res.data;
-    localStorage.setItem("token", token);
-    setIsLoading(false);
-    navigate("/");
+      const { token } = res.data;
+      localStorage.setItem("token", token);
+      setIsLoading(false);
+      navigate("/dashboard");
+    } catch (err: any) {
+      if (err.response && err.response.status === 401) {
+        setError("Invalid email or password");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const navigate = useNavigate();
@@ -108,6 +120,12 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
+
+              {error && (
+                <div className="text-red-500 text-sm font-medium ml-1">
+                  {error}
+                </div>
+              )}
 
               <motion.button
                 whileTap={{ scale: 0.97 }}

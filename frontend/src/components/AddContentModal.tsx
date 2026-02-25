@@ -170,7 +170,7 @@ const AddContentModal = () => {
                         </div>
                         <input
                           type="url"
-                          placeholder="https://..."
+                          placeholder="https://youtube.com"
                           className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:border-red-500 rounded-2xl outline-none text-base sm:text-sm"
                         />
                       </div>
