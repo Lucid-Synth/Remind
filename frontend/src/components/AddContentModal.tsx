@@ -11,6 +11,8 @@ import {
   Sparkles,
   AlignLeft,
 } from "lucide-react";
+import axios from "axios";
+import { Base_Url } from "../config/config";
 
 type ContentType = "youtube" | "notes";
 
@@ -18,6 +20,86 @@ const AddContentModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [contentType, setContentType] = useState<ContentType>("youtube");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading,setLoading] = useState(false)
+  const [error, setError] = useState("");
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const [userNotes, setUserNotes] = useState("");
+
+  const isValidYoutubeUrl = (urlString: any) => {
+    try {
+      const url = new URL(urlString);
+      const hostname = url.hostname.replace("www.", "");
+
+      return (
+        hostname === "youtu.be" ||
+        hostname === "m.youtube.com" ||
+        hostname === "youtube.com"
+      );
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const handleBlur = () => {
+    if (!isValidYoutubeUrl(url)) {
+      setError("Please enter a valid Youtube URL");
+    } else {
+      setError("");
+    }
+  };
+
+  const handleSubmit = async () => {
+    setError("");
+
+    if (!title.trim()) {
+      return setError("Title is required");
+    }
+
+    if (contentType === "youtube") {
+      if (!isValidYoutubeUrl(url)) {
+        return setError("Please enter a valid YouTube video URL");
+      }
+    }
+
+    if (contentType === "notes") {
+      if (!userNotes.trim()) {
+        return setError("Note content cannot be empty");
+      }
+    }
+
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      const endpoint =
+        contentType === "youtube"
+          ? `${Base_Url}/content/yt`
+          : `${Base_Url}/content/notes`;
+
+      const payload =
+        contentType === "youtube"
+          ? { title, url }
+          : { title, userNotes };
+
+      await axios.post(endpoint, payload, {
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      setTitle("");
+      setUrl("");
+      setUserNotes("");
+      setIsOpen(false);
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleModal = () => setIsOpen(!isOpen);
 
@@ -147,6 +229,8 @@ const AddContentModal = () => {
                     <input
                       type="text"
                       placeholder="Title..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
                       className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:border-[#f8961e] rounded-2xl outline-none transition-all text-base sm:text-sm"
                     />
                   </div>
@@ -170,9 +254,15 @@ const AddContentModal = () => {
                         </div>
                         <input
                           type="url"
-                          placeholder="https://youtube.com"
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          onBlur={handleBlur}
+                          placeholder="https://youtube.com/watch?v="
                           className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:border-red-500 rounded-2xl outline-none text-base sm:text-sm"
                         />
+                        {error && (
+                          <p className="text-red-500 text-xs mt-1">{error}</p>
+                        )}
                       </div>
                     </motion.div>
                   ) : (
@@ -191,6 +281,8 @@ const AddContentModal = () => {
                         </div>
                         <textarea
                           placeholder="Write..."
+                          value={userNotes}
+                          onChange={(e) => setUserNotes(e.target.value)}
                           rows={4}
                           className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:border-[#f8961e] rounded-2xl outline-none resize-none text-base sm:text-sm"
                         />
@@ -199,8 +291,16 @@ const AddContentModal = () => {
                   )}
                 </AnimatePresence>
 
-                <button className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all mt-2 active:scale-95">
-                  Add to Brain
+                {error && (
+                  <p className="text-red-500 text-sm text-center">{error}</p>
+                )}
+
+                <button
+                  className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all mt-2 active:scale-95"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  {loading ? "Adding..." : "Add to Brain"}
                 </button>
               </div>
             </motion.div>

@@ -232,15 +232,15 @@ function ContentCard({ item, index }: { item: any; index: number }) {
           {item.title}
         </h3>
 
-        {item.content && (
+        {item.userNotes && (
           <p className="text-slate-500 text-sm line-clamp-3 leading-relaxed">
-            {item.content}
+            {item.userNotes}
           </p>
         )}
       </div>
 
       {item.type === "youtube" && (
-        <Link to={item.link} target="_blank">
+        <Link to={item.url} target="_blank">
           <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-[#f8961e] text-xs font-bold">
             <ExternalLink size={14} />
             Watch Video

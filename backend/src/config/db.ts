@@ -1,18 +1,30 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import dotenv from "dotenv/config";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { sql } from "drizzle-orm";
 import { AsyncLocalStorage } from "async_hooks";
+import "dotenv/config";
 
-export const db = drizzle(process.env.NILEDB_URL);
+const pool = new Pool({
+  connectionString: process.env.NILEDB_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+pool.on("error", (err) => {
+  console.error("Unexpected PG error", err);
+});
+
+export const db = drizzle(pool);
 export const tenantContext = new AsyncLocalStorage<string | undefined>();
 
 export function tenantDB<T>(cb: (tx: any) => T | Promise<T>): Promise<T> {
   return db.transaction(async (tx) => {
     const tenantId = tenantContext.getStore();
-    console.log("executing query with tenant: " + tenantId);
-    // if there's a tenant ID, set it in the transaction context
+    console.log("executing query with tenant:", tenantId);
+
     if (tenantId) {
-      await tx.execute(sql`set local nile.tenant_id = '${sql.raw(tenantId)}'`);
+      await tx.execute(
+        sql`set local nile.tenant_id = ${tenantId}`
+      );
     }
 
     return cb(tx);
