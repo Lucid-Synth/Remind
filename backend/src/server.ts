@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: process.env.CLIENT_URL
+    origin: "https://remind-rouge.vercel.app/"
 }))
 
 app.use('/',authRoutes);
