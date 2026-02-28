@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Check,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 import Logo from "../components/Logo";
 import AddContentModal from "../components/AddContentModal";
@@ -49,6 +50,25 @@ function Dashboard() {
     } catch (error) {
       console.error("Error fetching Notes:", error);
       throw error;
+    }
+  };
+
+  const handleDelete = async (id: number, type: ContentType) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const endpoint =
+        type === "youtube"
+          ? `${Base_Url}/content/yt/${id}`
+          : `${Base_Url}/content/notes/${id}`;
+
+      await axios.delete(endpoint, {
+        headers: { Authorization: token },
+      });
+
+      setContent((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Delete failed:", error);
     }
   };
 
@@ -179,7 +199,12 @@ function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout" initial={false}>
             {filteredContent.map((item, index) => (
-              <ContentCard key={item.id} item={item} index={index} />
+              <ContentCard
+                key={item.id}
+                item={item}
+                index={index}
+                onDelete={handleDelete}
+              />
             ))}
           </AnimatePresence>
         </div>
@@ -189,7 +214,15 @@ function Dashboard() {
 }
 
 // Sub-component for the Cards
-function ContentCard({ item, index }: { item: any; index: number }) {
+function ContentCard({
+  item,
+  index,
+  onDelete,
+}: {
+  item: any;
+  index: number;
+  onDelete: (id: number, type: ContentType) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -223,9 +256,22 @@ function ContentCard({ item, index }: { item: any; index: number }) {
               <FileText size={20} />
             )}
           </div>
-          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter group-hover:text-slate-400">
-            {item.date}
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter group-hover:text-slate-400">
+              {new Date(item.createdAt).toLocaleDateString()}
+            </span>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item.id, item.type);
+              }}
+              className="p-2 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
         </div>
 
         <h3 className="text-lg font-bold text-slate-800 leading-tight mb-2 group-hover:text-[#f8961e] transition-colors">
